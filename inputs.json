@@ -1,0 +1,16 @@
+{
+	"member": "Welcome {} to Amaze telegram channel.\nPlease use _/help_ command to get all possible list of operations, or start typing ```/```\n\nYou can also use me to get basic info of any GitHub issue / PR. Just include issue / PR number in format #1234)",
+	"member2": "Feel free to ask your questions directly to one of our team members\n@vishal\\_nehra\n@EmmanuelMess\n@TranceLove",
+	"requestSessionOpen": "Feature request session is _open_.\nPlease navigate to our issue page below to input your feature details. Or mention your GitHub issue # here and we'll consider it.\n\nhttps://github.com/TeamAmaze/AmazeFileManager/issues",
+	"requestSessionClosed": "Feature request session is _closed_.\nPlease wait for next development cycle to start",
+	"default": "Sorry didn't get that, please use one of the following commands",
+	"serviceDown": "Sorry, I'm currently under maintenance",
+	"/help": "Supported list of operations:\n##help##",
+	"/version": "##version##",
+	"/maintainers": "Amaze File Manager has been in active development for over *6 years* now.\nWe started with a goal to build a light weight, good looking, open source file manager for Android, since back in the day all three of these aspects were not present in Android ecosystem.\nThis somewhat holds true to this day. So we keep pushing with the same philosophy.\n\nAmaze has been contributed by over *100 developers* throughout the world.\nCurrently, Amaze is being actively managed by following team members:\n@vishal\\_nehra\n@EmmanuelMess\n@TranceLove",
+	"/links": "```Google Play Store```\nhttps://play.google.com/store/apps/details?id=com.amaze.filemanager\n\n```FDroid```\nhttps://apt.izzysoft.de/fdroid/index/apk/com.amaze.filemanager\n\n```AFH```\nhttps://www.androidfilehost.com/?w=files&flid=73967\n\n```GitHub```\nhttps://github.com/TeamAmaze/AmazeFileManager/releases\n",
+	"/dependencies": "##dependencies##\n\n_For more info visit_\nhttps://github.com/TeamAmaze/AmazeFileManager/blob/master/app/build.gradle",
+	"/contribute": "Thanks for considering to contribute to Amaze. You can contribute through one of the follow ways:\n\n*Translate Amaze*\nhttps://www.transifex.com/amaze/amaze-file-manager/\n\n*Help us with bugfixes/feature requests*\nhttps://github.com/TeamAmaze/AmazeFileManager/issues\n\n*Contribute directly to our source code*\nhttps://github.com/TeamAmaze/AmazeFileManager",
+	"/invite": "Use this link to invite your friends here. Thanks (: \nhttps://t.me/joinchat/NNFgWxQUB8fFE3yCsC0w4g",
+	"/requestfeature": "##requestfeature##"
+}
