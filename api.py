@@ -18,7 +18,6 @@ send_message_url = base_url_telegram + "/sendMessage"
 @app.route('/runCommand', methods=['POST'])
 def api():
     data = request.get_json()
-    print("Current request json {}".format(data))
     request_token = request.args.get('token')
     message = data.get('message')
     if telegram_system_token == request_token or 0 == 0:
@@ -42,6 +41,7 @@ def process_command(inputs, message):
                 print("Service down for maintenance")
                 return inputs["serviceDown"]
 
+            print("Current request json {}".format(message))
             command_raw = message.get("text")
             bot_index_identifier = command_raw.find('@')
             if bot_index_identifier != -1:
@@ -68,16 +68,18 @@ def process_command(inputs, message):
 
             issue_number = re.findall("#\d{4}", message.get("text"))
             if len(issue_number) != 0:
+                print("Current request json {}".format(message))
                 print("Found request for issue number {}".format(issue_number[0]))
                 return git.parse_issue(issue_number[0][1:])
             else:
-                print("Unable to handle operation for input")
+                print("Unable to handle operation for chat id {}".format(message.get("chat").get("id")))
                 raise ValueError("Unable to handle operation")
     elif message.get("new_chat_member"):
         # SERVICE MAINTENANCE CHECK
         if function_switch == "OFF":
             print("Service down for maintenance")
             raise ValueError("Unable to handle operation")
+        print("Current request json {}".format(message))
         print("New member added to group: {}".format(message.get("new_chat_member")))
         return inputs["member"].format(message.get("new_chat_member").get("first_name")), inputs["member2"]
 
