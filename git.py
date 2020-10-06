@@ -1,10 +1,12 @@
 import requests
 import datetime
 import base64
+import re
 
 GITHUB_API_URI = "https://api.github.com"
 AMAZE_OWNER = "TeamAmaze"
 AMAZE_REPO = "AmazeFileManager"
+GITHUB_AMAZE_ISSUES_URI = "https://github.com/TeamAmaze/AmazeFileManager/issues/{}"
 
 
 def parse_version():
@@ -45,6 +47,7 @@ def parse_issue(issue_number):
         details += "\nClosed at: {}".format(closed_date)
     if data["closed_by"] is not None:
         details += "\nClosed by: {}".format(data["closed_by"]["login"])
+    details += "\n\n" + data["html_url"]
     print("Found issue details {}".format(details))
     return details
 
@@ -62,9 +65,12 @@ def parse_pr(pr_number):
               "{}\nCreated by: {}".format(pr_number, data["title"], data["state"], created_date, data["user"]["login"])
     if data["assignee"] is not None:
         details += "\nAssigned to: {}".format(data["assignee"]["login"])
-    if data["_links"]["issue"] is not None and data["_links"]["issue"]["href"] is not None:
-        issue_string = data["_links"]["issue"]["href"]
-        details += "\nFixes issue: {}".format(issue_string[-4:])
+    fixes_issue = re.findall("Fixes #\d{4}", data["body"])
+    if len(fixes_issue) != 0:
+        details += "\nFixes issue(s): "
+        for issue_raw in fixes_issue:
+            issue = issue_raw[-4:]
+            details += "[" + issue + "](" + GITHUB_AMAZE_ISSUES_URI.format(issue) + ")"
     if data["closed_at"] is not None:
         closed_date = datetime.datetime.strptime(data['closed_at'], '%Y-%m-%dT%H:%M:%SZ').date()
         details += "\nClosed at: {}".format(closed_date)
@@ -75,6 +81,7 @@ def parse_pr(pr_number):
     if data["merged_at"] is not None:
         merged_at = datetime.datetime.strptime(data['merged_at'], '%Y-%m-%dT%H:%M:%SZ').date()
         details += "\nMerged at: {}".format(merged_at)
+    details += "\n\n" + data["html_url"]
     print("Found pr details {}".format(details))
     return details
 
