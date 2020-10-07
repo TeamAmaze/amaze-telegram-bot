@@ -20,16 +20,15 @@ def api():
     data = request.get_json()
     request_token = request.args.get('token')
     message = data.get('message')
-    if telegram_system_token == request_token or 0 == 0:
+    if telegram_system_token == request_token and message is not None:
         try:
             send_message(process_command(load_input_dictionary(), message), message)
         except ValueError:
             return Response(status=200)
         return Response(status=200)
     else:
-        # token doesn't match, invalid request
-        print("token doesn't match, invalid request {}".format(request_token))
-        print("url is {}".format(send_message_url))
+        # token doesn't match or message not valid,
+        print("token doesn't match or message not valid; invalid request {}".format(request_token))
         return Response(status=200)
 
 

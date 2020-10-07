@@ -17,7 +17,7 @@ def parse_version():
         current_asset = x["assets"][0]
         download = current_asset["browser_download_url"]
         if not x["prerelease"]:
-            version += "*Release*:\n_{}_\n*Released On:*\n{}\n\n[Download Here]({})\n\n".format(name, date, download)
+            version += "*Release*\n_{}_\n*Released On:*\n{}\n\n[Download Here]({})\n\n".format(name, date, download)
         elif x["prerelease"]:
             version += "*Beta*\n_{}_\n*Released On:*\n{}\n\n[Download Here]({})\n\n".format(name, date, download)
     print("Found versions {}".format(version))
