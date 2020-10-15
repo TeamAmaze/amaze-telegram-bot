@@ -118,3 +118,36 @@ def parse_releases():
             beta_found = True
             releases_array.append(x)
     return releases_array
+
+
+def parse_milestones():
+    uri = GITHUB_API_URI + "/repos/{}/{}/issues".format(AMAZE_OWNER, AMAZE_REPO)
+    milestone_uri = GITHUB_API_URI + "/repos/{}/{}/milestones".format(AMAZE_OWNER, AMAZE_REPO)
+    print("Get all milestone from github uri {}".format(milestone_uri))
+    response = requests.get(url=milestone_uri, headers={"Accept": "application/vnd.github.v3+json"})
+    data = response.json()
+    output_map = {}
+    milestone_links = {}
+    output = ""
+    milestone_titles = []
+    for milestone in data:
+        milestone_titles.append(milestone["number"])
+        milestone_links.update({milestone["title"]: milestone["html_url"]})
+    for milestone_number in milestone_titles:
+        issues_response = requests.get(url=uri, params={"milestone": milestone_number, "state": "all"},
+                                       headers={"Accept": "application/vnd.github.v3+json"})
+        print("Get all issues for milestone {} from github uri {}".format(milestone_number, milestone_uri))
+        issues_data = issues_response.json()
+        for current_issue in issues_data:
+            milestone_data = current_issue["milestone"]
+            if output_map.get(milestone_data["title"]) is None:
+                output_map.update(
+                    {milestone_data["title"]: "- {}".format(current_issue["title"])})
+            else:
+                output_map.update(
+                    {milestone_data["title"]: "{}\n- {}".format(output_map.get(milestone_data["title"]),
+                                                                current_issue["title"])})
+    for current in output_map.items():
+        output += "\n\n[{}]({})\n{}".format(current[0], milestone_links.get(current[0]), current[1])
+    print("Found changelog: {}".format(output))
+    return output

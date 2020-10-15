@@ -1,0 +1,9 @@
+help - Supported list of operations
+version - Latest version of Amaze File Manager
+maintainers - List of Amaze project maintainers
+links - Extra links
+dependencies - Current list of dependencies used by Amaze
+contribute - Ways for you to contribute
+requestfeature - Request us a feature
+invite - Invite your friends to Amaze telegram channel
+changelog - View changelog for Amaze versions

@@ -102,6 +102,8 @@ def format_command(inputs, command_keyword):
             return inputs["requestSessionOpen"]
         else:
             return inputs["requestSessionClosed"]
+    elif command_keyword == "changelog":
+        return git.parse_milestones()
     else:
         return "_Command Not Found_"
 
