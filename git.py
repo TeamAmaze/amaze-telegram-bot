@@ -7,6 +7,7 @@ GITHUB_API_URI = "https://api.github.com"
 AMAZE_OWNER = "TeamAmaze"
 AMAZE_REPO = "AmazeFileManager"
 GITHUB_AMAZE_ISSUES_URI = "https://github.com/TeamAmaze/AmazeFileManager/issues/{}"
+GITHUB_MILESTONES_URI = "https://github.com/TeamAmaze/AmazeFileManager/milestones"
 
 
 def parse_version():
@@ -14,12 +15,15 @@ def parse_version():
     for x in parse_releases():
         name = x["name"]
         date = datetime.datetime.strptime(x['published_at'], '%Y-%m-%dT%H:%M:%SZ').date()
-        current_asset = x["assets"][0]
-        download = current_asset["browser_download_url"]
         if not x["prerelease"]:
-            version += "*Release*\n_{}_\n*Released On:*\n{}\n\n[Download Here]({})\n\n".format(name, date, download)
+            version += "*Release*\n\n_{}_\n*Released On:*\n{}\n".format(name, date)
         elif x["prerelease"]:
-            version += "*Beta*\n_{}_\n*Released On:*\n{}\n\n[Download Here]({})\n\n".format(name, date, download)
+            version += "\n*Beta*\n\n_{}_\n*Released On:*\n{}\n".format(name, date)
+        assets = x["assets"]
+        if len(assets) > 0:
+            current_asset = assets[0]
+            download = current_asset["browser_download_url"]
+            version += "\n[Download Here]({})\n".format(download)
     print("Found versions {}".format(version))
     return version
 
@@ -124,30 +128,38 @@ def parse_milestones():
     uri = GITHUB_API_URI + "/repos/{}/{}/issues".format(AMAZE_OWNER, AMAZE_REPO)
     milestone_uri = GITHUB_API_URI + "/repos/{}/{}/milestones".format(AMAZE_OWNER, AMAZE_REPO)
     print("Get all milestone from github uri {}".format(milestone_uri))
-    response = requests.get(url=milestone_uri, headers={"Accept": "application/vnd.github.v3+json"})
+    response = requests.get(url=milestone_uri, params={"state": "all"},
+                            headers={"Accept": "application/vnd.github.v3+json"})
     data = response.json()
     output_map = {}
     milestone_links = {}
+    milestone_currently_active = {}
     output = ""
     milestone_titles = []
     for milestone in data:
         milestone_titles.append(milestone["number"])
         milestone_links.update({milestone["title"]: milestone["html_url"]})
+        if milestone["state"] == "open":
+            milestone_currently_active.update({milestone["title"]: True})
+        else:
+            milestone_currently_active.update({milestone["title"]: False})
+    milestone_titles.sort(reverse=True)
+    milestone_titles = milestone_titles[0:3]
     for milestone_number in milestone_titles:
-        issues_response = requests.get(url=uri, params={"milestone": milestone_number, "state": "all"},
+        issues_response = requests.get(url=uri, params={"milestone": milestone_number, "state": "closed"},
                                        headers={"Accept": "application/vnd.github.v3+json"})
         print("Get all issues for milestone {} from github uri {}".format(milestone_number, milestone_uri))
         issues_data = issues_response.json()
         for current_issue in issues_data:
             milestone_data = current_issue["milestone"]
-            if output_map.get(milestone_data["title"]) is None:
-                output_map.update(
-                    {milestone_data["title"]: "- {}".format(current_issue["title"])})
-            else:
-                output_map.update(
-                    {milestone_data["title"]: "{}\n- {}".format(output_map.get(milestone_data["title"]),
-                                                                current_issue["title"])})
+            output_map.update(
+                {milestone_data["title"]:
+                     "- {}".format(current_issue["title"]) if output_map.get(milestone_data["title"]) is None else
+                     "{}\n- {}".format(output_map.get(milestone_data["title"]), current_issue["title"])})
     for current in output_map.items():
-        output += "\n\n[{}]({})\n{}".format(current[0], milestone_links.get(current[0]), current[1])
+        output += "\n\n[{}]({}) - _{}_\n{}".format(current[0], milestone_links.get(current[0]),
+                                                   "ONGOING" if milestone_currently_active.get(current[0])
+                                                   else "RELEASED", current[1])
+    output += "\n\nFind full changelog [here]({})".format(GITHUB_MILESTONES_URI)
     print("Found changelog: {}".format(output))
     return output
