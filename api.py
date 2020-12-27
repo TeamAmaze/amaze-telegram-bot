@@ -11,6 +11,10 @@ app.config["DEBUG"] = True
 function_switch = "ON"
 telegram_system_token = os.environ.get('TELEGRAM_TOKEN')
 request_session = os.environ.get("REQUEST_SESSION")
+restricted_commands = os.environ.get("RESTRICTED_COMMANDS")
+issue_token = os.environ.get("ISSUE_TOKEN")
+users_admins = os.environ.get("USERS_ADMINS")
+issue_create_uri = os.environ.get("ISSUE_CREATE_URI")
 base_url_telegram = "https://api.telegram.org/bot{}".format(telegram_system_token)
 send_message_url = base_url_telegram + "/sendMessage"
 
@@ -47,12 +51,20 @@ def process_command(inputs, message):
                 command_raw = command_raw[:bot_index_identifier]
             print("Found a new interaction with amaze bot for message: {}".format(command_raw))
             if inputs and command_raw in inputs:
+                # authenticate command permission
+                if not is_command_permitted(command_raw, message):
+                    print("User not permitted for the command {}".format(command_raw))
+                    return inputs["commandNotPermitted"]
                 result_command = inputs[command_raw]
                 print("Found resultCommand {}".format(result_command))
                 command_keyword = re.findall("##.+##", result_command)
                 if len(command_keyword) != 0:
                     print("Processing regex {} for result command {}".format(command_keyword[0], result_command))
-                    return result_command.replace(command_keyword[0], "\n" + format_command(inputs, command_keyword[0]))
+                    try:
+                        return result_command.replace(command_keyword[0], "\n" +
+                                                      format_command(inputs, message, command_keyword[0]))
+                    except Exception as err:
+                        return str(err)
                 else:
                     return result_command
             else:
@@ -83,7 +95,7 @@ def process_command(inputs, message):
         return inputs["member"].format(message.get("new_chat_member").get("first_name")), inputs["member2"]
 
 
-def format_command(inputs, command_keyword):
+def format_command(inputs, message, command_keyword):
     command_keyword = command_keyword[2:-2]
     if command_keyword == "help":
         result = ""
@@ -104,8 +116,27 @@ def format_command(inputs, command_keyword):
             return inputs["requestSessionClosed"]
     elif command_keyword == "changelog":
         return git.parse_milestones()
+    elif command_keyword == "createissue":
+        reply_to_message = message.get("reply_to_message")
+        if reply_to_message is None:
+            raise Exception(inputs["quote_message"])
+        reporter_from = message.get("from")
+        reporter = reporter_from.get("username")
+        user_from = reply_to_message.get("from")
+        user = user_from.get("username")
+        print(" Found reporter {}, user {}, message {}".format(reporter, user, reply_to_message.get("text")))
+        return git.create_issue(issue_create_uri, issue_token, reply_to_message.get("text"), reporter, user)
     else:
         return "_Command Not Found_"
+
+
+def is_command_permitted(command, message):
+    if command in restricted_commands.split(','):
+        message_from = message.get("from")
+        user_name = message_from.get("username")
+        return user_name in users_admins.split(',')
+    else:
+        return True
 
 
 def send_message(command_result, data):

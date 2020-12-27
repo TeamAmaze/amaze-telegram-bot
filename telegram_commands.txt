@@ -7,3 +7,4 @@ contribute - Ways for you to contribute
 requestfeature - Request us a feature
 invite - Invite your friends to Amaze telegram channel
 changelog - View changelog for Amaze versions
+createissue - Creates new GitHub issue (restricted to admins)
