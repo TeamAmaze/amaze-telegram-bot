@@ -175,7 +175,7 @@ def create_issue(uri, token, issue_message, reporter, user):
     if not response.ok or response_json is None or "message" in response_json:
         raise Exception("Failed to create issue")
     else:
-        result = "[{}]({})".format(response_json["number"], response_json["url"])
+        result = "[{}]({})".format(response_json["number"], response_json["html_url"])
         print("Return createissue response {}".format(result))
         return result
 
