@@ -7,14 +7,15 @@
 	"serviceDown": "Sorry, I'm currently under maintenance",
 	"commandNotPermitted": "Sorry, you're not allowed to perform this operation.",
 	"quote_message": "Please quote a message for this operation",
+	"createissue": "Issue created. You can track the progress at {}",
 	"/help": "Supported list of operations:\n##help##",
 	"/version": "##version##",
-	"/maintainers": "Amaze File Manager has been in active development for over *6 years* now.\nWe started with a goal to build a light weight, good looking, open source file manager for Android, since back in the day all three of these aspects were not present in Android ecosystem.\nThis somewhat holds true to this day. So we keep pushing with the same philosophy.\n\nAmaze has been contributed by over *100 developers* throughout the world.\nCurrently, Amaze is being actively managed by following team members:\n@vishal\\_nehra\n@EmmanuelMess\n@TranceLove",
+	"/maintainers": "Amaze File Manager has been in active development for over *6 years* now.\nWe started with a goal to build a light weight, good looking, open source file manager for Android, since back in the day all three of these aspects were not present in Android ecosystem.\nThis somewhat holds true to this day. So we keep pushing with the same philosophy.\n\nAmaze has been contributed by over *100 developers* throughout the world, with codebase size of *##loc##* lines.\nCurrently, Amaze is being actively managed by following team members:\n@vishal\\_nehra\n@EmmanuelMess\n@TranceLove.",
 	"/links": "```Google Play Store```\nhttps://play.google.com/store/apps/details?id=com.amaze.filemanager\n\n```FDroid```\nhttps://apt.izzysoft.de/fdroid/index/apk/com.amaze.filemanager\n\n```AFH```\nhttps://www.androidfilehost.com/?w=files&flid=73967\n\n```GitHub```\nhttps://github.com/TeamAmaze/AmazeFileManager/releases\n",
 	"/dependencies": "##dependencies##\n\n_For more info visit_\nhttps://github.com/TeamAmaze/AmazeFileManager/blob/master/app/build.gradle",
 	"/contribute": "Thanks for considering to contribute to Amaze. You can contribute through one of the follow ways:\n\n*Translate Amaze*\nhttps://www.transifex.com/amaze/amaze-file-manager/\n\n*Help us with bugfixes/feature requests*\nhttps://github.com/TeamAmaze/AmazeFileManager/issues\n\n*Contribute directly to our source code*\nhttps://github.com/TeamAmaze/AmazeFileManager",
 	"/invite": "Use this link to invite your friends here. Thanks (: \nhttps://t.me/AmazeFileManager",
 	"/requestfeature": "##requestfeature##",
-	"/createissue": "Issue created. You can track the progress at ##createissue##",
-	"/changelog": "*Following issues are fixed*##changelog##"
+	"/changelog": "*Following issues are fixed*##changelog##",
+	"/fdroid": "Amaze is temporarily not available on Fdroid. While we work with fdroid team to figure out the issue, you can use Izzy's fdroid repo to download Amaze.\nIt is maintained by one of the maintaners of original fdroid and has exactly the same version fdroid would provide.\n\nYou can download it [here](https://apt.izzysoft.de/fdroid/index/apk/com.amaze.filemanager)\n\n"
 }

@@ -15,7 +15,11 @@ restricted_commands = os.environ.get("RESTRICTED_COMMANDS")
 issue_token = os.environ.get("ISSUE_TOKEN")
 users_admins = os.environ.get("USERS_ADMINS")
 issue_create_uri = os.environ.get("ISSUE_CREATE_URI")
+owner = os.environ.get("OWNER")
+repo = os.environ.get("REPOSITORY")
+telegram_bot_name = os.environ.get("BOT_NAME")
 base_url_telegram = "https://api.telegram.org/bot{}".format(telegram_system_token)
+base_url_codacy_stats = "https://app.codacy.com/api/v3/analysis/organizations/gh/{}/repositories/{}/commit-statistics".format(owner, repo)
 send_message_url = base_url_telegram + "/sendMessage"
 
 
@@ -48,6 +52,9 @@ def process_command(inputs, message):
             command_raw = message.get("text")
             bot_index_identifier = command_raw.find('@')
             if bot_index_identifier != -1:
+                if command_raw[bot_index_identifier+1:] != telegram_bot_name:
+                    print("Not a command for Amaze bot, input command {}".format(command_raw[bot_index_identifier+1:]))
+                    raise ValueError()
                 command_raw = command_raw[:bot_index_identifier]
             print("Found a new interaction with amaze bot for message: {}".format(command_raw))
             if inputs and command_raw in inputs:
@@ -82,6 +89,11 @@ def process_command(inputs, message):
                 print("Current request json {}".format(message))
                 print("Found request for issue number {}".format(issue_number[0]))
                 return git.parse_issue(issue_number[0][1:])
+            elif message.get("text").startswith("## Issue explanation (write below this line)"):
+                reporter_from = message.get("from")
+                user_name = reporter_from.get("username")
+                print("Found reporter {}, message {}".format(reporter_from, message.get("text")))
+                return inputs["createissue"].format(git.create_issue(issue_create_uri, issue_token, message.get("text"), user_name))
             else:
                 print("Unable to handle operation for chat id {}".format(message.get("chat").get("id")))
                 raise ValueError("Unable to handle operation")
@@ -116,16 +128,17 @@ def format_command(inputs, message, command_keyword):
             return inputs["requestSessionClosed"]
     elif command_keyword == "changelog":
         return git.parse_milestones()
-    elif command_keyword == "createissue":
-        reply_to_message = message.get("reply_to_message")
-        if reply_to_message is None:
-            raise Exception(inputs["quote_message"])
-        reporter_from = message.get("from")
-        reporter = reporter_from.get("username")
-        user_from = reply_to_message.get("from")
-        user = user_from.get("username")
-        print(" Found reporter {}, user {}, message {}".format(reporter, user, reply_to_message.get("text")))
-        return git.create_issue(issue_create_uri, issue_token, reply_to_message.get("text"), reporter, user)
+    elif command_keyword == "loc":
+        print("Calling codacy for LOC count at {}".format(base_url_codacy_stats))
+        response = requests.get(url=base_url_codacy_stats)
+        if response.status_code != 200:
+            print("Codacy call fail for LOC at {}".format(base_url_codacy_stats))
+            return "over 85k"
+        data = response.json()["data"]
+        print("Get response from codacy for url {}, {}".format(base_url_codacy_stats, data))
+        number_loc = data[0].get("numberLoc")
+        print("Found number of loc for repo {} to be {}".format(repo, str(number_loc)))
+        return str(number_loc)
     else:
         return "_Command Not Found_"
 

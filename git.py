@@ -165,11 +165,10 @@ def parse_milestones():
     return output
 
 
-def create_issue(uri, token, issue_message, reporter, user):
-    request_body = create_issue_body(issue_message, reporter, user)
-    print("Create issue with request body: {}".format(request_body))
-    response = requests.post(uri, params={"channel": "telegram", "token": token},
-                             json=create_issue_body(issue_message, reporter, user))
+def create_issue(uri, token, issue_message, reporter):
+    request_body = create_issue_body(issue_message, reporter)
+    print("Create issue by {} with request body: {}".format(reporter, request_body))
+    response = requests.post(uri, params={"channel": "telegram", "token": token}, json=request_body)
     response_json = response.json()
     print("Get response body from create_issue {}".format(response_json))
     if not response.ok or response_json is None or "message" in response_json:
@@ -180,7 +179,7 @@ def create_issue(uri, token, issue_message, reporter, user):
         return result
 
 
-def create_issue_body(issue_message, reporter, user):
-    title = "Crash reported by {} for {}".format(reporter, user)
-    issue_message += "\n\nRaised by: {}\nReporter: {}".format(reporter, user)
+def create_issue_body(issue_message, reporter):
+    title = "Crash reported by {}".format(reporter)
+    issue_message += "\t\tReporter: {}".format(reporter)
     return {"title": title, "body": issue_message}
