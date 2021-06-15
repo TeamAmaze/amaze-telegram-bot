@@ -84,7 +84,7 @@ def process_command(inputs, message):
                 print("Service down for maintenance")
                 raise ValueError("Unable to handle operation")
 
-            issue_number = re.findall("#\d{4}", message.get("text"))
+            issue_number = re.findall("#\d{4}|#\d{3}", message.get("text"))
             if len(issue_number) != 0:
                 print("Current request json {}".format(message))
                 print("Found request for issue number {}".format(issue_number[0]))
