@@ -15,6 +15,7 @@ restricted_commands = os.environ.get("RESTRICTED_COMMANDS")
 issue_token = os.environ.get("ISSUE_TOKEN")
 users_admins = os.environ.get("USERS_ADMINS")
 issue_create_uri = os.environ.get("ISSUE_CREATE_URI")
+utils_issue_create_uri = os.environ.get("UTILS_ISSUE_CREATE_URI")
 owner = os.environ.get("OWNER")
 repo = os.environ.get("REPOSITORY")
 telegram_bot_name = os.environ.get("BOT_NAME")
@@ -30,6 +31,7 @@ def api():
     message = data.get('message')
     if telegram_system_token == request_token and message is not None:
         try:
+            print("Input data {}".format(data))
             send_message(process_command(load_input_dictionary(), message), message)
         except ValueError:
             return Response(status=200)
@@ -84,16 +86,29 @@ def process_command(inputs, message):
                 print("Service down for maintenance")
                 raise ValueError("Unable to handle operation")
 
-            issue_number = re.findall("#\d{4}|#\d{3}", message.get("text"))
+            issue_number = re.findall("#\d{4}", message.get("text"))
             if len(issue_number) != 0:
-                print("Current request json {}".format(message))
+                print("Extracted issue number from current request json {}, {}".format(issue_number, message))
                 print("Found request for issue number {}".format(issue_number[0]))
                 return git.parse_issue(issue_number[0][1:])
             elif message.get("text").startswith("## Issue explanation (write below this line)"):
                 reporter_from = message.get("from")
                 user_name = reporter_from.get("username")
                 print("Found reporter {}, message {}".format(reporter_from, message.get("text")))
-                return inputs["createissue"].format(git.create_issue(issue_create_uri, issue_token, message.get("text"), user_name))
+                try:
+                    if "com.amaze.fileutilities" in message.get("text"):
+                        # file utilities issue
+                        print("Resolving file utilities crash for {}".format(user_name))
+                        response = git.create_issue(utils_issue_create_uri, issue_token, message.get("text"), user_name)
+                        return inputs["createissue"].format(response)
+                    else:
+                        print("Resolving file manager crash for {}".format(user_name))
+                        response = git.create_issue(issue_create_uri, issue_token, message.get("text"), user_name)
+                        return inputs["createissue"].format(response)
+                except ValueError:
+                    return inputs["unofficial_version"]
+                except Exception:
+                    return "Failed to create issue. Please contact admins."
             else:
                 print("Unable to handle operation for chat id {}".format(message.get("chat").get("id")))
                 raise ValueError("Unable to handle operation")
@@ -158,16 +173,17 @@ def send_message(command_result, data):
         for x in command_result:
             send_message_request = build_post_message_request(x, data)
             print("Send post message request {} to url {}".format(send_message_request, send_message_url))
-            # requests.post(send_message_url, data=send_message_request, headers={"Accept": "application/json"})
+            requests.post(send_message_url, data=send_message_request, headers={"Accept": "application/json"})
     else:
         print("Send single response from bot")
         send_message_request = build_post_message_request(command_result, data)
         print("Send post message request {} to url {}".format(send_message_request, send_message_url))
-        # requests.post(send_message_url, data=send_message_request, headers={"Accept": "application/json"})
+        requests.post(send_message_url, data=send_message_request, headers={"Accept": "application/json"})
 
 
 def build_post_message_request(command_result, data):
-    return {"chat_id": data.get("chat").get("id"), "text": command_result, "parse_mode": "MARKDOWN"}
+    print("Building message request for chat id: {} and reply message {}".format(data.get("chat").get("id"), data.get("message_id")))
+    return {"chat_id": data.get("chat").get("id"), "text": command_result, "reply_to_message_id": data.get("message_id"), "parse_mode": "MARKDOWN"}
 
 
 def load_input_dictionary():
